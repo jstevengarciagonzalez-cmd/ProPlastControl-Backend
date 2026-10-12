@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProPlastControl - Panel Principal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+  <!-- Navegación -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-primary" href="/dashboard.html">ProPlastControl</a>
+      <div class="d-flex">
+        <a href="/index.html" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mb-5">
+    <h1 class="h3 mb-4 text-secondary">Panel de Control de Producción</h1>
+
+    <!-- Sección Materia Prima -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Materia Prima</h5>
+        <button class="btn btn-sm btn-light" onclick="cargarMateriaPrima()">Actualizar</button>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped align-middle">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Código</th>
+                <th>Material</th>
+                <th>Stock (Kg)</th>
+                <th>ID Proveedor</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-materia-prima">
+              <tr><td colspan="5" class="text-muted">Cargando datos...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección Productos -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Productos Terminados</h5>
+        <button class="btn btn-sm btn-light" onclick="cargarProductos()">Actualizar</button>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped align-middle">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Código</th>
+                <th>Descripción</th>
+                <th>Precio Unitario</th>
+                <th>Stock (Unidades)</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-productos">
+              <tr><td colspan="5" class="text-muted">Cargando datos...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+
+    async function cargarMateriaPrima() {
+      try {
+        const res = await fetch(`${API_URL}/materia-prima`);
+        const datos = await res.json();
+        const tbody = document.getElementById('tabla-materia-prima');
+        tbody.innerHTML = datos.map(item => `
+          <tr>
+            <td>${item.id_materia_prima}</td>
+            <td><span class="badge bg-secondary">${item.codigo}</span></td>
+            <td>${item.nombre_material}</td>
+            <td><strong>${item.stock_kg}</strong></td>
+            <td>${item.id_proveedor}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function cargarProductos() {
+      try {
+        const res = await fetch(`${API_URL}/productos`);
+        const datos = await res.json();
+        const tbody = document.getElementById('tabla-productos');
+        tbody.innerHTML = datos.map(item => `
+          <tr>
+            <td>${item.id_producto}</td>
+            <td><span class="badge bg-secondary">${item.codigo}</span></td>
+            <td>${item.descripcion}</td>
+            <td>$${item.precio_unitario}</td>
+            <td><strong>${item.stock_unidades}</strong></td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    cargarMateriaPrima();
+    cargarProductos();
+  </script>
+</body>
+</html>

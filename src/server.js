@@ -1,6 +1,8 @@
-// [SERVER] Express y variables .env
+// [SERVER] Express, variables .env y CORS
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
+const path = require('path');
 
 dotenv.config();
 
@@ -11,8 +13,10 @@ require('./config/db');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// [MIDDLEWARE] Soporte para JSON en peticiones
+// [MIDDLEWARES] CORS, JSON y carpeta pública para el Frontend
+app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../public')));
 
 // [RUTAS] Importar rutas
 const materiaPrimaRoutes = require('./routes/materiaPrimaRoutes');
@@ -25,14 +29,6 @@ app.use('/api/materia-prima', materiaPrimaRoutes);
 app.use('/api/proveedores', proveedorRoutes);
 app.use('/api/productos', productoRoutes);
 app.use('/api/ordenes-produccion', ordenProduccionRoutes);
-
-// [RUTA BASE] Endpoint de prueba del servidor
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'API REST ProPlastControl Backend funcionando correctamente',
-    status: 'OK'
-  });
-});
 
 // [SERVER] Levantar puerto
 app.listen(PORT, () => {
