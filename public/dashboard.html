@@ -4,55 +4,54 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ProPlastControl - Panel de Control</title>
-  <!-- Bootstrap 5 CSS & FontAwesome Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
     :root {
-      --bg-dark: #0f172a;
-      --card-dark: #1e293b;
-      --accent-blue: #3b82f6;
-      --accent-green: #10b981;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --border-color: #334155;
+      --sidebar-bg: #1e293b;
+      --sidebar-active: #0284c7;
+      --main-bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
     }
 
     body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
+      background-color: var(--main-bg);
+      color: var(--text-dark);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       min-height: 100vh;
-    }
-
-    /* Layout Sidebar + Content */
-    .dashboard-wrapper {
       display: flex;
-      min-height: 100vh;
     }
 
+    /* Sidebar */
     .sidebar {
-      width: 260px;
-      background-color: var(--card-dark);
-      border-right: 1px solid var(--border-color);
-      padding: 1.5rem 1rem;
+      width: 250px;
+      background-color: var(--sidebar-bg);
+      color: #ffffff;
       display: flex;
       flex-direction: column;
+      flex-shrink: 0;
+      min-height: 100vh;
     }
 
     .sidebar-brand {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--accent-blue);
-      margin-bottom: 2rem;
+      padding: 1.5rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
-    .nav-link-custom {
-      color: var(--text-muted);
+    .nav-custom {
+      padding: 1rem 0.75rem;
+      flex: 1;
+    }
+
+    .nav-item-custom {
+      color: #94a3b8;
       padding: 0.75rem 1rem;
       border-radius: 8px;
       display: flex;
@@ -60,181 +59,344 @@
       gap: 12px;
       text-decoration: none;
       font-weight: 500;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.35rem;
       transition: all 0.2s ease;
+      cursor: pointer;
     }
 
-    .nav-link-custom:hover, .nav-link-custom.active {
-      background-color: var(--accent-blue);
+    .nav-item-custom:hover {
+      color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-item-custom.active {
+      background-color: var(--sidebar-active);
       color: #ffffff;
     }
 
-    .main-content {
-      flex: 1;
-      padding: 2rem;
-      overflow-y: auto;
+    .user-profile {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    /* Cards de Métricas */
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background-color: #0284c7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    /* Main Area */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .top-bar {
+      background-color: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.85rem 2rem;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 15px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .content-area {
+      padding: 2rem;
+      flex: 1;
+    }
+
+    /* Metric Cards */
     .metric-card {
-      background-color: var(--card-dark);
+      background-color: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 1.25rem;
+      position: relative;
     }
 
-    /* Tablas */
-    .custom-table-container {
-      background-color: var(--card-dark);
+    .metric-icon {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .icon-blue { background-color: #dbeafe; color: #2563eb; }
+    .icon-green { background-color: #dcfce7; color: #16a34a; }
+    .icon-warning { background-color: #fef9c3; color: #ca8a04; }
+    .icon-purple { background-color: #f3e8ff; color: #9333ea; }
+
+    .content-section {
+      display: none;
+    }
+
+    .content-section.active {
+      display: block;
+    }
+
+    .card-custom {
+      background-color: #ffffff;
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 1.5rem;
+      margin-bottom: 1.5rem;
     }
 
-    .table-dark-custom {
-      --bs-table-bg: transparent;
-      --bs-table-color: var(--text-main);
-      --bs-table-border-color: var(--border-color);
-    }
-
-    .badge-code {
-      background-color: rgba(59, 130, 246, 0.15);
-      color: var(--accent-blue);
-      border: 1px solid var(--accent-blue);
-      padding: 0.3em 0.6em;
-      border-radius: 6px;
+    .progress-custom {
+      height: 8px;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
 
-  <div class="dashboard-wrapper">
-    <!-- Sidebar de Navegación Estilo Figma -->
-    <aside class="sidebar">
-      <div class="sidebar-brand">
-        <i class="fa-solid fa-industry"></i>
-        <span>ProPlastControl</span>
+  <!-- Sidebar Lateral estilo Figma -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <i class="fa-solid fa-industry fs-4 text-info"></i>
+      <div>
+        <h6 class="fw-bold mb-0">ProPlastControl</h6>
+        <span class="small text-secondary" style="font-size: 0.75rem;">Control de Producción</span>
       </div>
+    </div>
 
-      <nav class="nav flex-column mb-auto">
-        <a href="#materia-prima" class="nav-link-custom active" onclick="mostrarSeccion('materia-prima')">
-          <i class="fa-solid fa-boxes-stacked"></i> Materia Prima
-        </a>
-        <a href="#productos" class="nav-link-custom" onclick="mostrarSeccion('productos')">
-          <i class="fa-solid fa-box-open"></i> Productos Terminados
-        </a>
-      </nav>
-
-      <div class="pt-3 border-top border-secondary">
-        <a href="/index.html" class="nav-link-custom text-danger">
-          <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
-        </a>
+    <nav class="nav-custom">
+      <div class="nav-item-custom active" onclick="cambiarPestana('panel', this)">
+        <i class="fa-solid fa-chart-pie"></i> Panel de Control
       </div>
-    </aside>
-
-    <!-- Área Principal de Trabajo -->
-    <main class="main-content">
-      
-      <!-- Encabezado -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 class="fw-bold mb-1">Panel de Control de Producción</h2>
-          <p class="text-secondary mb-0">Gestión e inventario en tiempo real</p>
-        </div>
-        <button class="btn btn-outline-light btn-sm" onclick="cargarTodo()">
-          <i class="fa-solid fa-rotate-right me-1"></i> Sincronizar BD
-        </button>
+      <div class="nav-item-custom" onclick="cambiarPestana('produccion', this)">
+        <i class="fa-solid fa-gears"></i> Producción
       </div>
+      <div class="nav-item-custom" onclick="cambiarPestana('inventario', this)">
+        <i class="fa-solid fa-boxes-stacked"></i> Inventario
+      </div>
+      <div class="nav-item-custom" onclick="cambiarPestana('ordenes', this)">
+        <i class="fa-solid fa-file-invoice"></i> Órdenes
+      </div>
+      <div class="nav-item-custom" onclick="cambiarPestana('reportes', this)">
+        <i class="fa-solid fa-chart-line"></i> Reportes
+      </div>
+      <div class="nav-item-custom" onclick="cambiarPestana('configuracion', this)">
+        <i class="fa-solid fa-sliders"></i> Configuración
+      </div>
+    </nav>
 
-      <!-- Métricas Resumen -->
-      <div class="row g-3 mb-4">
-        <div class="col-md-6 col-lg-3">
-          <div class="metric-card">
-            <span class="text-secondary small">Total Materia Prima</span>
-            <h3 class="fw-bold my-1 text-primary" id="metric-mp-count">0</h3>
-            <span class="small text-muted">Registros en catálogo</span>
+    <div class="user-profile">
+      <div class="user-avatar">ST</div>
+      <div>
+        <h6 class="mb-0 small fw-bold text-white">Steven</h6>
+        <span class="text-secondary" style="font-size: 0.725rem;">CEO</span>
+      </div>
+      <a href="index.html" class="text-secondary ms-auto"><i class="fa-solid fa-right-from-bracket"></i></a>
+    </div>
+  </aside>
+
+  <!-- Área Principal -->
+  <div class="main-wrapper">
+    <div class="top-bar">
+      <span><i class="fa-regular fa-calendar me-1"></i> Fecha: 12/10/2026</span>
+      <span><i class="fa-regular fa-clock me-1"></i> Turno: Diurno</span>
+    </div>
+
+    <main class="content-area">
+
+      <!-- 1. PANEL DE CONTROL -->
+      <section id="sec-panel" class="content-section active">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h3 class="fw-bold mb-1">Panel de Control</h3>
+            <p class="text-secondary small mb-0">Vista general de producción e inventario</p>
+          </div>
+          <div>
+            <button class="btn btn-outline-secondary btn-sm me-2">Exportar Datos</button>
+            <button class="btn btn-dark btn-sm">Generar Reporte</button>
           </div>
         </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="metric-card">
-            <span class="text-secondary small">Total Productos</span>
-            <h3 class="fw-bold my-1 text-success" id="metric-prod-count">0</h3>
-            <span class="small text-muted">Línea de producción</span>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="metric-card">
+              <span class="text-secondary small">Producción Hoy</span>
+              <h2 class="fw-bold my-1">847</h2>
+              <span class="text-success small fw-bold"><i class="fa-solid fa-arrow-up"></i> +12%</span>
+              <span class="text-secondary small ms-1">2,540 unidades esta semana</span>
+              <div class="metric-icon icon-blue"><i class="fa-solid fa-box"></i></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="metric-card">
+              <span class="text-secondary small">Órdenes Activas</span>
+              <h2 class="fw-bold my-1">23</h2>
+              <span class="text-success small fw-bold"><i class="fa-solid fa-arrow-up"></i> +5</span>
+              <span class="text-secondary small ms-1">18 en producción, 5 pendientes</span>
+              <div class="metric-icon icon-green"><i class="fa-solid fa-circle-check"></i></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="metric-card">
+              <span class="text-secondary small">Alertas de Stock</span>
+              <h2 class="fw-bold my-1">8</h2>
+              <span class="text-danger small fw-bold"><i class="fa-solid fa-arrow-down"></i> -2</span>
+              <span class="text-secondary small ms-1">3 críticas, 5 en advertencia</span>
+              <div class="metric-icon icon-warning"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Sección 1: Materia Prima -->
-      <section id="sec-materia-prima" class="custom-table-container mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h4 class="fw-bold text-primary mb-0"><i class="fa-solid fa-boxes-stacked me-2"></i>Materia Prima</h4>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-dark-custom align-middle">
-            <thead>
-              <tr class="text-secondary">
-                <th>ID</th>
-                <th>Código</th>
-                <th>Material</th>
-                <th>Stock (Kg)</th>
-                <th>Proveedor ID</th>
-              </tr>
-            </thead>
-            <tbody id="tabla-materia-prima">
-              <tr><td colspan="5" class="text-muted text-center">Cargando datos...</td></tr>
-            </tbody>
-          </table>
+        <!-- Tabla dinámicamente conectada a MySQL -->
+        <div class="card-custom">
+          <h5 class="fw-bold mb-3"><i class="fa-solid fa-database text-primary me-2"></i>Materias Primas Registradas (MySQL)</h5>
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr class="text-secondary small">
+                  <th>ID</th>
+                  <th>CÓDIGO</th>
+                  <th>MATERIAL</th>
+                  <th>STOCK DISPONIBLE</th>
+                  <th>PROVEEDOR</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-materia-prima-panel">
+                <tr><td colspan="5" class="text-muted text-center">Cargando datos desde el Servidor...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
-      <!-- Sección 2: Productos Terminados -->
-      <section id="sec-productos" class="custom-table-container">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h4 class="fw-bold text-success mb-0"><i class="fa-solid fa-box-open me-2"></i>Productos Terminados</h4>
+      <!-- 2. PRODUCCIÓN -->
+      <section id="sec-produccion" class="content-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h3 class="fw-bold mb-1">Gestión de Producción</h3>
+            <p class="text-secondary small mb-0">Control y monitoreo de órdenes de producción</p>
+          </div>
+          <button class="btn btn-dark btn-sm">+ Nueva Orden</button>
         </div>
-        <div class="table-responsive">
-          <table class="table table-dark-custom align-middle">
-            <thead>
-              <tr class="text-secondary">
-                <th>ID</th>
-                <th>Código</th>
-                <th>Descripción</th>
-                <th>Precio Unitario</th>
-                <th>Stock (Unidades)</th>
-              </tr>
-            </thead>
-            <tbody id="tabla-productos">
-              <tr><td colspan="5" class="text-muted text-center">Cargando datos...</td></tr>
-            </tbody>
-          </table>
+
+        <div class="card-custom">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <span class="fw-bold fs-5">OP-1245</span>
+              <span class="badge bg-primary-subtle text-primary ms-2">En Proceso</span>
+              <span class="badge bg-danger-subtle text-danger ms-1">Prioridad Alta</span>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm">Ver Detalle</button>
+          </div>
+          <p class="text-secondary small mb-3">Reflectores LED T-800</p>
+          
+          <div class="row text-center mb-3 g-2">
+            <div class="col"><div class="p-2 bg-light rounded"><small class="text-secondary d-block">Cantidad</small><strong>500</strong></div></div>
+            <div class="col"><div class="p-2 bg-light rounded"><small class="text-secondary d-block">Completadas</small><strong class="text-success">375</strong></div></div>
+            <div class="col"><div class="p-2 bg-light rounded"><small class="text-secondary d-block">Eficiencia</small><strong class="text-purple">92%</strong></div></div>
+            <div class="col"><div class="p-2 bg-light rounded"><small class="text-secondary d-block">Defectos</small><strong class="text-danger">8</strong></div></div>
+          </div>
+
+          <small class="text-secondary">Progreso de Producción (75%)</small>
+          <div class="progress progress-custom mt-1">
+            <div class="progress-bar bg-dark" style="width: 75%"></div>
+          </div>
         </div>
+      </section>
+
+      <!-- 3. INVENTARIO (MySQL Connect) -->
+      <section id="sec-inventario" class="content-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h3 class="fw-bold mb-1">Gestión de Inventario</h3>
+            <p class="text-secondary small mb-0">Control de materias primas, insumos y productos</p>
+          </div>
+        </div>
+
+        <div class="card-custom">
+          <h5 class="fw-bold mb-3"><i class="fa-solid fa-boxes-stacked text-success me-2"></i>Productos Terminados en Sistema (MySQL)</h5>
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr class="text-secondary small">
+                  <th>ID</th>
+                  <th>CÓDIGO</th>
+                  <th>DESCRIPCIÓN</th>
+                  <th>PRECIO UNITARIO</th>
+                  <th>STOCK UNIDADES</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-productos-inventario">
+                <tr><td colspan="5" class="text-muted text-center">Cargando datos desde el Servidor...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. ÓRDENES, REPORTES Y CONFIGURACIÓN -->
+      <section id="sec-ordenes" class="content-section">
+        <h3 class="fw-bold mb-3">Órdenes de Venta</h3>
+        <p class="text-secondary">Sección de pedidos de clientes en producción.</p>
+      </section>
+
+      <section id="sec-reportes" class="content-section">
+        <h3 class="fw-bold mb-3">Reportes y Análisis</h3>
+        <p class="text-secondary">Indicadores de producción y costos mensuales.</p>
+      </section>
+
+      <section id="sec-configuracion" class="content-section">
+        <h3 class="fw-bold mb-3">Configuración del Sistema</h3>
+        <p class="text-secondary">Ajustes de la empresa y roles de usuario.</p>
       </section>
 
     </main>
   </div>
 
-  <!-- JavaScript para consumir la API REST -->
   <script>
     const API_URL = 'http://localhost:3000/api';
+
+    function cambiarPestana(seccionId, elemento) {
+      document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.nav-item-custom').forEach(item => item.classList.remove('active'));
+      
+      document.getElementById(`sec-${seccionId}`).classList.add('active');
+      elemento.classList.add('active');
+    }
 
     async function cargarMateriaPrima() {
       try {
         const res = await fetch(`${API_URL}/materia-prima`);
         const datos = await res.json();
-        document.getElementById('metric-mp-count').innerText = datos.length || 0;
+        const tbody = document.getElementById('tabla-materia-prima-panel');
         
-        const tbody = document.getElementById('tabla-materia-prima');
         tbody.innerHTML = datos.map(item => `
           <tr>
-            <td>${item.id_materia_prima}</td>
-            <td><span class="badge-code">${item.codigo}</span></td>
-            <td class="fw-medium">${item.nombre_material}</td>
-            <td><strong class="text-info">${item.stock_kg} Kg</strong></td>
-            <td>${item.id_proveedor}</td>
+            <td class="fw-bold">${item.id_materia_prima}</td>
+            <td><span class="badge bg-light text-dark border">${item.codigo}</span></td>
+            <td>${item.nombre_material}</td>
+            <td><strong class="text-primary">${item.stock_kg} Kg</strong></td>
+            <td>Proveedor #${item.id_proveedor}</td>
           </tr>
         `).join('');
       } catch (err) {
-        console.error('Error al cargar Materia Prima:', err);
+        console.error('Error al obtener Materia Prima:', err);
       }
     }
 
@@ -242,30 +404,25 @@
       try {
         const res = await fetch(`${API_URL}/productos`);
         const datos = await res.json();
-        document.getElementById('metric-prod-count').innerText = datos.length || 0;
+        const tbody = document.getElementById('tabla-productos-inventario');
 
-        const tbody = document.getElementById('tabla-productos');
         tbody.innerHTML = datos.map(item => `
           <tr>
-            <td>${item.id_producto}</td>
-            <td><span class="badge-code">${item.codigo}</span></td>
-            <td class="fw-medium">${item.descripcion}</td>
-            <td class="text-success">$${item.precio_unitario}</td>
-            <td><strong class="text-light">${item.stock_unidades} u</strong></td>
+            <td class="fw-bold">${item.id_producto}</td>
+            <td><span class="badge bg-light text-dark border">${item.codigo}</span></td>
+            <td>${item.descripcion}</td>
+            <td class="text-success fw-bold">$${item.precio_unitario}</td>
+            <td><strong class="text-dark">${item.stock_unidades} u</strong></td>
           </tr>
         `).join('');
       } catch (err) {
-        console.error('Error al cargar Productos:', err);
+        console.error('Error al obtener Productos:', err);
       }
     }
 
-    function cargarTodo() {
-      cargarMateriaPrima();
-      cargarProductos();
-    }
-
-    // Inicializar al cargar la página
-    cargarTodo();
+    // Inicializar cargas
+    cargarMateriaPrima();
+    cargarProductos();
   </script>
 </body>
 </html>

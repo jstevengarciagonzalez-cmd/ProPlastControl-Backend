@@ -3,72 +3,110 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ProPlastControl - Inicio</title>
-  <!-- Bootstrap 5 CSS -->
+  <title>ProPlastControl - Iniciar Sesión</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #f8fafc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #fff;
+      margin: 0;
     }
-    .card-login {
-      background-color: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    .login-card {
+      background-color: #ffffff;
+      color: #1e293b;
       border-radius: 16px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .brand-icon {
+      width: 64px;
+      height: 64px;
+      background-color: #e2e8f0;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem auto;
+      color: #0284c7;
+      font-size: 2rem;
+    }
+    .form-control-custom {
+      background-color: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+    }
+    .form-control-custom:focus {
+      background-color: #ffffff;
+      border-color: #0284c7;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+    .btn-login {
+      background-color: #0f172a;
+      color: #ffffff;
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-weight: 600;
+      width: 100%;
+      transition: background-color 0.2s;
+    }
+    .btn-login:hover {
+      background-color: #1e293b;
+      color: #ffffff;
+    }
+    .demo-box {
+      background-color: #eff6ff;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      font-size: 0.825rem;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-6 col-lg-5 text-center">
-        
-        <div class="card card-login p-4 p-md-5 shadow-lg">
-          <div class="mb-4">
-           <h1 class="fw-bold text-primary display-6 text-nowrap">ProPlastControl</h1>
-            <p class="text-secondary small">Sistema de Gestión e Inventario para la Industria Plástica</p>
-          </div>
+  <div class="text-center">
+    <div class="brand-icon">
+      <i class="fa-solid fa-industry"></i>
+    </div>
+    <h3 class="fw-bold mb-0 text-white">ProPlastControl</h3>
+    <p class="text-secondary small mb-4">Sistema de Control de Producción e Inventarios</p>
 
-          <form onsubmit="iniciarSesion(event)">
-            <div class="form-floating mb-3 text-dark">
-              <input type="email" class="form-control" id="correo" placeholder="name@example.com" value="admin@proplast.com" required>
-              <label for="correo">Correo Electrónico</label>
-            </div>
-            
-            <div class="form-floating mb-4 text-dark">
-              <input type="password" class="form-control" id="password" placeholder="Contraseña" value="123456" required>
-              <label for="password">Contraseña</label>
-            </div>
+    <div class="login-card text-start mx-auto">
+      <h4 class="fw-bold mb-1">Iniciar Sesión</h4>
+      <p class="text-muted small mb-4">Ingresa tus credenciales para acceder</p>
 
-            <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm mb-3">
-              Ingresar al Sistema
-            </button>
-          </form>
-
-          <div class="border-top border-secondary pt-3 mt-2">
-            <a href="/dashboard.html" class="text-decoration-none text-light opacity-75 small">
-              &rarr; Entrar directamente al Dashboard
-            </a>
-          </div>
+      <form onsubmit="event.preventDefault(); window.location.href='dashboard.html';">
+        <div class="mb-3">
+          <label class="form-label small fw-semibold text-secondary">Usuario</label>
+          <input type="text" class="form-control form-control-custom" value="Steven" placeholder="Ingresa tu usuario">
         </div>
+        <div class="mb-4">
+          <label class="form-label small fw-semibold text-secondary">Contraseña</label>
+          <input type="password" class="form-control form-control-custom" value="123456789" placeholder="Ingresa tu contraseña">
+        </div>
+        <button type="submit" class="btn btn-login">Iniciar Sesión</button>
+      </form>
 
-        <p class="text-muted small mt-4">&copy; 2026 ProPlastControl - Todos los derechos reservados</p>
+      <div class="demo-box text-start">
+        <div class="fw-semibold text-primary mb-2">Credenciales de demostración:</div>
+        <div class="mb-1"><strong>CEO:</strong> <span class="text-muted">Usuario: Steven | Contraseña: 123456789</span></div>
+        <div class="mb-1"><strong>Jefe de Producción:</strong> <span class="text-muted">Usuario: Jhon | Contraseña: 987654321</span></div>
+        <div><strong>Encargado:</strong> <span class="text-muted">Usuario: Soley | Contraseña: 1919</span></div>
       </div>
     </div>
+
+    <p class="text-secondary small mt-4">© 2026 ProPlastControl S.A. - Todos los derechos reservados</p>
   </div>
 
-  <script>
-    function iniciarSesion(e) {
-      e.preventDefault();
-      // Redirigir al panel de control tras el ingreso
-      window.location.href = '/dashboard.html';
-    }
-  </script>
 </body>
 </html>
