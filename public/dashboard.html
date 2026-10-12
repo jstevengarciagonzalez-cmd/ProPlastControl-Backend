@@ -69,11 +69,12 @@
               <p class="text-secondary small mb-0">Vista general de producción e inventario en tiempo real</p>
             </div>
             <div>
-              <button class="btn btn-outline-secondary btn-sm me-2" onclick="cargarTodoElSistema()"><i class="fa-solid fa-rotate-right me-1"></i> Sincronizar MySQL</button>
+              <button class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#modalMateriaPrima"><i class="fa-solid fa-plus me-1"></i> Nueva Materia Prima</button>
+              <button class="btn btn-outline-secondary btn-sm" onclick="cargarTodoElSistema()"><i class="fa-solid fa-rotate-right me-1"></i> Sincronizar MySQL</button>
             </div>
           </div>
 
-          <!-- Métricas Resumen Calculadas de la BD -->
+          <!-- Métricas Resumen -->
           <div class="row g-3 mb-4">
             <div class="col-md-4">
               <div class="metric-card">
@@ -101,7 +102,7 @@
             </div>
           </div>
 
-          <!-- Tabla Resumen Panel: Materias Primas -->
+          <!-- Tabla Resumen Panel -->
           <div class="card-custom">
             <h5 class="fw-bold mb-3"><i class="fa-solid fa-database text-primary me-2"></i>Materia Prima (MySQL)</h5>
             <div class="table-responsive">
@@ -160,6 +161,7 @@
               <h3 class="fw-bold mb-1">Gestión de Inventario</h3>
               <p class="text-secondary small mb-0">Control de productos terminados en stock</p>
             </div>
+            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalProducto"><i class="fa-solid fa-plus me-1"></i> Nuevo Producto</button>
           </div>
 
           <div class="card-custom">
@@ -310,6 +312,77 @@
     </div>
   </div>
 
+  <!-- MODAL 1: REGISTRAR MATERIA PRIMA -->
+  <div class="modal fade" id="modalMateriaPrima" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold"><i class="fa-solid fa-boxes-stacked text-primary me-2"></i>Agregar Materia Prima</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formMateriaPrima">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Código</label>
+              <input type="text" id="mp-codigo" class="form-control" placeholder="Ej: MP-006" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Nombre del Material</label>
+              <input type="text" id="mp-nombre" class="form-control" placeholder="Ej: Polipropileno Reforzado" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Stock Inicial (Kg)</label>
+              <input type="number" step="0.01" id="mp-stock" class="form-control" placeholder="Ej: 500" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-sm">Guardar en MySQL</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: REGISTRAR PRODUCTO TERMINADO -->
+  <div class="modal fade" id="modalProducto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold"><i class="fa-solid fa-box-open text-success me-2"></i>Agregar Producto Terminado</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formProducto">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Código de Producto</label>
+              <input type="text" id="prod-codigo" class="form-control" placeholder="Ej: PROD-005" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Descripción</label>
+              <input type="text" id="prod-desc" class="form-control" placeholder="Ej: Foco Direccional LED" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Precio Unitario ($)</label>
+              <input type="number" step="0.01" id="prod-precio" class="form-control" placeholder="Ej: 45000" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Stock Inicial (Unidades)</label>
+              <input type="number" id="prod-stock" class="form-control" placeholder="Ej: 150" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success btn-sm">Guardar en MySQL</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle para habilitar modales -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
   <script>
     const API_URL = 'http://localhost:3000/api';
 
@@ -341,7 +414,7 @@
             <td><span class="badge bg-light text-dark border">${item.codigo}</span></td>
             <td class="fw-medium">${item.nombre_material}</td>
             <td><strong class="text-primary">${item.stock_kg} Kg</strong></td>
-            <td>Proveedor #${item.id_proveedor}</td>
+            <td>Proveedor #${item.id_proveedor || 1}</td>
           </tr>
         `).join('');
       } catch (err) {
@@ -406,13 +479,76 @@
       }
     }
 
+    // MANEJADOR: GUARDAR MATERIA PRIMA (POST)
+    document.getElementById('formMateriaPrima').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        codigo: document.getElementById('mp-codigo').value,
+        nombre_material: document.getElementById('mp-nombre').value,
+        stock_kg: parseFloat(document.getElementById('mp-stock').value),
+        id_proveedor: 1
+      };
+
+      try {
+        const res = await fetch(`${API_URL}/materia-prima`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          alert('¡Materia Prima guardada con éxito en MySQL!');
+          const modal = bootstrap.Modal.getInstance(document.getElementById('modalMateriaPrima'));
+          modal.hide();
+          document.getElementById('formMateriaPrima').reset();
+          cargarMateriasPrimas();
+        } else {
+          alert('Error al guardar en el servidor');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Ocurrió un error al enviar los datos');
+      }
+    });
+
+    // MANEJADOR: GUARDAR PRODUCTO TERMINADO (POST)
+    document.getElementById('formProducto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        codigo: document.getElementById('prod-codigo').value,
+        descripcion: document.getElementById('prod-desc').value,
+        precio_unitario: parseFloat(document.getElementById('prod-precio').value),
+        stock_unidades: parseInt(document.getElementById('prod-stock').value)
+      };
+
+      try {
+        const res = await fetch(`${API_URL}/productos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          alert('¡Producto guardado con éxito en MySQL!');
+          const modal = bootstrap.Modal.getInstance(document.getElementById('modalProducto'));
+          modal.hide();
+          document.getElementById('formProducto').reset();
+          cargarProductos();
+        } else {
+          alert('Error al guardar en el servidor');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Ocurrió un error al enviar los datos');
+      }
+    });
+
     function cargarTodoElSistema() {
       cargarMateriasPrimas();
       cargarProductos();
       cargarOrdenesProduccion();
     }
 
-    // Carga inicial
     cargarTodoElSistema();
   </script>
 </body>
