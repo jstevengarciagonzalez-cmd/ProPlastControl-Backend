@@ -14,7 +14,7 @@
     <!-- Sidebar estilo Figma con Logo Oficial -->
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <img src="assets/logo.png" alt="Logo ProPlastControl" style="width: 36px; height: 36px; object-fit: contain; border-radius: 8px; background: #ffffff; padding: 2px;" onerror="this.src='assets/logo.jpg'">
+        <img src="assets/logo.png" alt="Logo ProPlastControl" style="width: 75px; height: 75px; object-fit: contain; border-radius: 8px; background: #ffffff; padding: 2px;" onerror="this.src='assets/logo.jpg'">
         <div>
           <h6 class="fw-bold mb-0 text-white">ProPlastControl</h6>
           <span class="small text-secondary" style="font-size: 0.75rem;">Control de Producción</span>
@@ -270,32 +270,33 @@
       }
     }
 
-    // 3. Cargar Órdenes de Producción
-    async function cargarOrdenesProduccion() {
-      try {
-        const res = await fetch(`${API_URL}/ordenes-produccion`);
-        const datos = await res.json();
-        
-        document.getElementById('m-total-ordenes').innerText = datos.length || 0;
-        const tbody = document.getElementById('tabla-ordenes-produccion');
+   // 3. Cargar Órdenes de Producción (Corregido)
+async function cargarOrdenesProduccion() {
+  try {
+    const res = await fetch(`${API_URL}/ordenes-produccion`);
+    const datos = await res.json();
+    
+    document.getElementById('m-total-ordenes').innerText = datos.length || 0;
+    const tbody = document.getElementById('tabla-ordenes-produccion');
 
-        if (!datos || datos.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" class="text-muted text-center">No hay órdenes registradas en MySQL</td></tr>`;
-          return;
-        }
+    if (!datos || datos.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="text-muted text-center">No hay órdenes registradas en MySQL</td></tr>`;
+      return;
+    }
 
-        tbody.innerHTML = datos.map(item => `
-          <tr>
-            <td class="fw-bold">OP-${item.id_orden || item.id_orden_produccion}</td>
-            <td>Producto #${item.id_producto}</td>
-            <td><strong>${item.cantidad_planificada || item.cantidad} u</strong></td>
-            <td><span class="badge bg-primary-subtle text-primary">${item.estado || 'En Proceso'}</span></td>
-            <td class="text-secondary">${item.fecha_inicio ? new Date(item.fecha_inicio).toLocaleDateString() : 'Hoy'}</td>
-          </tr>
-        `).join('');
-      } catch (err) {
-        console.error('Error al obtener Órdenes:', err);
-        document.getElementById('tabla-ordenes-produccion').innerHTML = `<tr><td colspan="5" class="text-muted text-center">Sin órdenes registradas</td></tr>`;
+    tbody.innerHTML = datos.map(item => `
+      <tr>
+        <td class="fw-bold">OP-${item.id_orden || item.id_orden_produccion}</td>
+        <td>Producto #${item.id_producto}</td>
+        <td><strong>${item.cantidad_planificada || item.cantidad || item.numero_orden || '500'} u</strong></td>
+        <td><span class="badge bg-primary-subtle text-primary">${item.estado || 'En proceso'}</span></td>
+        <td class="text-secondary">${item.fecha_inicio ? new Date(item.fecha_inicio).toLocaleDateString() : 'Hoy'}</td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error('Error al obtener Órdenes:', err);
+    document.getElementById('tabla-ordenes-produccion').innerHTML = `<tr><td colspan="5" class="text-muted text-center">Sin órdenes registradas</td></tr>`;
+
       }
     }
 
