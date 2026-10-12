@@ -66,47 +66,44 @@
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h3 class="fw-bold mb-1">Panel de Control</h3>
-              <p class="text-secondary small mb-0">Vista general de producción e inventario</p>
+              <p class="text-secondary small mb-0">Vista general de producción e inventario en tiempo real</p>
             </div>
             <div>
-              <button class="btn btn-outline-secondary btn-sm me-2">Exportar Datos</button>
-              <button class="btn btn-dark btn-sm">Generar Reporte</button>
+              <button class="btn btn-outline-secondary btn-sm me-2" onclick="cargarTodoElSistema()"><i class="fa-solid fa-rotate-right me-1"></i> Sincronizar MySQL</button>
             </div>
           </div>
 
+          <!-- Métricas Resumen Calculadas de la BD -->
           <div class="row g-3 mb-4">
             <div class="col-md-4">
               <div class="metric-card">
-                <span class="text-secondary small">Producción Hoy</span>
-                <h2 class="fw-bold my-1">847</h2>
-                <span class="text-success small fw-bold"><i class="fa-solid fa-arrow-up"></i> +12%</span>
-                <span class="text-secondary small ms-1">2,540 unidades esta semana</span>
-                <div class="metric-icon icon-blue"><i class="fa-solid fa-box"></i></div>
+                <span class="text-secondary small">Total Materias Primas</span>
+                <h2 class="fw-bold my-1" id="m-total-mp">0</h2>
+                <span class="text-primary small ms-1">Registros cargados en inventario</span>
+                <div class="metric-icon icon-blue"><i class="fa-solid fa-boxes-stacked"></i></div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="metric-card">
-                <span class="text-secondary small">Órdenes Activas</span>
-                <h2 class="fw-bold my-1">23</h2>
-                <span class="text-success small fw-bold"><i class="fa-solid fa-arrow-up"></i> +5</span>
-                <span class="text-secondary small ms-1">18 en producción, 5 pendientes</span>
-                <div class="metric-icon icon-green"><i class="fa-solid fa-circle-check"></i></div>
+                <span class="text-secondary small">Productos Terminados</span>
+                <h2 class="fw-bold my-1" id="m-total-prod">0</h2>
+                <span class="text-success small ms-1">Catálogo activo</span>
+                <div class="metric-icon icon-green"><i class="fa-solid fa-box-open"></i></div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="metric-card">
-                <span class="text-secondary small">Alertas de Stock</span>
-                <h2 class="fw-bold my-1">8</h2>
-                <span class="text-danger small fw-bold"><i class="fa-solid fa-arrow-down"></i> -2</span>
-                <span class="text-secondary small ms-1">3 críticas, 5 en advertencia</span>
-                <div class="metric-icon icon-warning"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <span class="text-secondary small">Órdenes Registradas</span>
+                <h2 class="fw-bold my-1" id="m-total-ordenes">0</h2>
+                <span class="text-warning small ms-1">Órdenes de producción en sistema</span>
+                <div class="metric-icon icon-warning"><i class="fa-solid fa-industry"></i></div>
               </div>
             </div>
           </div>
 
-          <!-- Tabla de Materias Primas conectada a MySQL -->
+          <!-- Tabla Resumen Panel: Materias Primas -->
           <div class="card-custom">
-            <h5 class="fw-bold mb-3"><i class="fa-solid fa-database text-primary me-2"></i>Materias Primas Registradas (MySQL)</h5>
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-database text-primary me-2"></i>Materia Prima (MySQL)</h5>
             <div class="table-responsive">
               <table class="table align-middle">
                 <thead>
@@ -118,8 +115,8 @@
                     <th>PROVEEDOR</th>
                   </tr>
                 </thead>
-                <tbody id="tabla-materia-prima-panel">
-                  <tr><td colspan="5" class="text-muted text-center">Cargando datos desde el Servidor...</td></tr>
+                <tbody id="tabla-mp-panel">
+                  <tr><td colspan="5" class="text-muted text-center">Cargando datos desde la base de datos...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -131,24 +128,27 @@
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h3 class="fw-bold mb-1">Gestión de Producción</h3>
-              <p class="text-secondary small mb-0">Control y monitoreo de órdenes de producción</p>
+              <p class="text-secondary small mb-0">Órdenes de producción procesadas por el Backend</p>
             </div>
-            <button class="btn btn-dark btn-sm">+ Nueva Orden</button>
           </div>
 
           <div class="card-custom">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <div>
-                <span class="fw-bold fs-5">OP-1245</span>
-                <span class="badge bg-primary-subtle text-primary ms-2">En Proceso</span>
-                <span class="badge bg-danger-subtle text-danger ms-1">Prioridad Alta</span>
-              </div>
-              <button class="btn btn-outline-secondary btn-sm">Ver Detalle</button>
-            </div>
-            <p class="text-secondary small mb-3">Reflectores LED T-800</p>
-            <small class="text-secondary">Progreso de Producción (75%)</small>
-            <div class="progress mt-1" style="height: 8px;">
-              <div class="progress-bar bg-dark" style="width: 75%"></div>
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-gears text-warning me-2"></i>Órdenes de Producción Registradas</h5>
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead>
+                  <tr class="text-secondary small">
+                    <th>ID ÓRDEN</th>
+                    <th>PRODUCTO ID</th>
+                    <th>CANTIDAD PLANIFICADA</th>
+                    <th>ESTADO</th>
+                    <th>FECHA INICIO</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-ordenes-produccion">
+                  <tr><td colspan="5" class="text-muted text-center">Cargando órdenes desde MySQL...</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </section>
@@ -158,7 +158,7 @@
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h3 class="fw-bold mb-1">Gestión de Inventario</h3>
-              <p class="text-secondary small mb-0">Control de productos terminados</p>
+              <p class="text-secondary small mb-0">Control de productos terminados en stock</p>
             </div>
           </div>
 
@@ -172,11 +172,11 @@
                     <th>CÓDIGO</th>
                     <th>DESCRIPCIÓN</th>
                     <th>PRECIO UNITARIO</th>
-                    <th>STOCK UNIDADES</th>
+                    <th>STOCK DISPONIBLE</th>
                   </tr>
                 </thead>
-                <tbody id="tabla-productos-inventario">
-                  <tr><td colspan="5" class="text-muted text-center">Cargando datos desde el Servidor...</td></tr>
+                <tbody id="tabla-prod-inventario">
+                  <tr><td colspan="5" class="text-muted text-center">Cargando productos desde MySQL...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -186,17 +186,17 @@
         <!-- 4. ÓRDENES, REPORTES Y CONFIGURACIÓN -->
         <section id="sec-ordenes" class="content-section">
           <h3 class="fw-bold mb-3">Órdenes de Venta</h3>
-          <p class="text-secondary">Sección de pedidos de clientes en producción.</p>
+          <p class="text-secondary">Gestión de pedidos comercial e integración de clientes.</p>
         </section>
 
         <section id="sec-reportes" class="content-section">
           <h3 class="fw-bold mb-3">Reportes y Análisis</h3>
-          <p class="text-secondary">Indicadores de producción y costos mensuales.</p>
+          <p class="text-secondary">Indicadores clave de rendimiento (KPIs) e informes del sistema.</p>
         </section>
 
         <section id="sec-configuracion" class="content-section">
           <h3 class="fw-bold mb-3">Configuración del Sistema</h3>
-          <p class="text-secondary">Ajustes de la empresa y usuarios.</p>
+          <p class="text-secondary">Ajustes de la empresa, credenciales e integración de base de datos.</p>
         </section>
 
       </main>
@@ -214,17 +214,25 @@
       elemento.classList.add('active');
     }
 
-    async function cargarMateriaPrima() {
+    // 1. Cargar Materias Primas
+    async function cargarMateriasPrimas() {
       try {
         const res = await fetch(`${API_URL}/materia-prima`);
         const datos = await res.json();
-        const tbody = document.getElementById('tabla-materia-prima-panel');
         
+        document.getElementById('m-total-mp').innerText = datos.length || 0;
+        const tbody = document.getElementById('tabla-mp-panel');
+        
+        if (datos.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-muted text-center">No hay registros en MySQL</td></tr>`;
+          return;
+        }
+
         tbody.innerHTML = datos.map(item => `
           <tr>
             <td class="fw-bold">${item.id_materia_prima}</td>
             <td><span class="badge bg-light text-dark border">${item.codigo}</span></td>
-            <td>${item.nombre_material}</td>
+            <td class="fw-medium">${item.nombre_material}</td>
             <td><strong class="text-primary">${item.stock_kg} Kg</strong></td>
             <td>Proveedor #${item.id_proveedor}</td>
           </tr>
@@ -234,11 +242,19 @@
       }
     }
 
+    // 2. Cargar Productos Terminados
     async function cargarProductos() {
       try {
         const res = await fetch(`${API_URL}/productos`);
         const datos = await res.json();
-        const tbody = document.getElementById('tabla-productos-inventario');
+        
+        document.getElementById('m-total-prod').innerText = datos.length || 0;
+        const tbody = document.getElementById('tabla-prod-inventario');
+
+        if (datos.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-muted text-center">No hay productos en MySQL</td></tr>`;
+          return;
+        }
 
         tbody.innerHTML = datos.map(item => `
           <tr>
@@ -246,7 +262,7 @@
             <td><span class="badge bg-light text-dark border">${item.codigo}</span></td>
             <td>${item.descripcion}</td>
             <td class="text-success fw-bold">$${item.precio_unitario}</td>
-            <td><strong class="text-dark">${item.stock_unidades} u</strong></td>
+            <td><strong class="text-dark">${item.stock_unidades} Unidades</strong></td>
           </tr>
         `).join('');
       } catch (err) {
@@ -254,8 +270,43 @@
       }
     }
 
-    cargarMateriaPrima();
-    cargarProductos();
+    // 3. Cargar Órdenes de Producción
+    async function cargarOrdenesProduccion() {
+      try {
+        const res = await fetch(`${API_URL}/ordenes-produccion`);
+        const datos = await res.json();
+        
+        document.getElementById('m-total-ordenes').innerText = datos.length || 0;
+        const tbody = document.getElementById('tabla-ordenes-produccion');
+
+        if (!datos || datos.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-muted text-center">No hay órdenes registradas en MySQL</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = datos.map(item => `
+          <tr>
+            <td class="fw-bold">OP-${item.id_orden || item.id_orden_produccion}</td>
+            <td>Producto #${item.id_producto}</td>
+            <td><strong>${item.cantidad_planificada || item.cantidad} u</strong></td>
+            <td><span class="badge bg-primary-subtle text-primary">${item.estado || 'En Proceso'}</span></td>
+            <td class="text-secondary">${item.fecha_inicio ? new Date(item.fecha_inicio).toLocaleDateString() : 'Hoy'}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error('Error al obtener Órdenes:', err);
+        document.getElementById('tabla-ordenes-produccion').innerHTML = `<tr><td colspan="5" class="text-muted text-center">Sin órdenes registradas</td></tr>`;
+      }
+    }
+
+    function cargarTodoElSistema() {
+      cargarMateriasPrimas();
+      cargarProductos();
+      cargarOrdenesProduccion();
+    }
+
+    // Carga inicial al abrir la página
+    cargarTodoElSistema();
   </script>
 </body>
 </html>
