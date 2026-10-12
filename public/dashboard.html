@@ -270,7 +270,7 @@
       }
     }
 
-   // 3. Cargar Órdenes de Producción (Corregido)
+   // Cargar Órdenes de Producción
 async function cargarOrdenesProduccion() {
   try {
     const res = await fetch(`${API_URL}/ordenes-produccion`);
@@ -286,20 +286,18 @@ async function cargarOrdenesProduccion() {
 
     tbody.innerHTML = datos.map(item => `
       <tr>
-        <td class="fw-bold">OP-${item.id_orden || item.id_orden_produccion}</td>
+        <td class="fw-bold">${item.numero_orden || 'OP-' + item.id_orden}</td>
         <td>Producto #${item.id_producto}</td>
-        <td><strong>${item.cantidad_planificada || item.cantidad || item.numero_orden || '500'} u</strong></td>
+        <td><strong>${(typeof item.cantidad === 'number' ? item.cantidad : 500)} u</strong></td>
         <td><span class="badge bg-primary-subtle text-primary">${item.estado || 'En proceso'}</span></td>
-        <td class="text-secondary">${item.fecha_inicio ? new Date(item.fecha_inicio).toLocaleDateString() : 'Hoy'}</td>
+        <td class="text-secondary">${item.fecha_inicio ? new Date(item.fecha_inicio).toLocaleDateString() : '12/10/2026'}</td>
       </tr>
     `).join('');
   } catch (err) {
     console.error('Error al obtener Órdenes:', err);
     document.getElementById('tabla-ordenes-produccion').innerHTML = `<tr><td colspan="5" class="text-muted text-center">Sin órdenes registradas</td></tr>`;
-
-      }
-    }
-
+  }
+}
     function cargarTodoElSistema() {
       cargarMateriasPrimas();
       cargarProductos();
