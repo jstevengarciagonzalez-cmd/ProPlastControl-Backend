@@ -1,0 +1,33 @@
+=====================================================
+ DOCUMENTACIÓN DE SERVICIOS WEB - API PROPLASTCONTROL
+ Evidencia: GA7-220501096-AA5-EV03
+ Aprendiz: Jhon Stiven García González
+=====================================================
+
+1. REGISTRO DE USUARIO
+   - Endpoint: /api/registro
+   - Método: POST
+   - Headers: Content-Type: application/json
+   - Body:
+     {
+       "usuario": "ejemplo",
+       "password": "123"
+     }
+   - Respuestas:
+     * 201 Created: {"mensaje": "Usuario registrado con exito"}
+     * 409 Conflict: {"mensaje": "El usuario ya existe"}
+     * 400 Bad Request: {"mensaje": "usuario y contraseña, son obligatorios"}
+
+2. INICIO DE SESIÓN (LOGIN)
+   - Endpoint: /api/login
+   - Método: POST
+   - Headers: Content-Type: application/json
+   - Body:
+     {
+       "usuario": "ejemplo",
+       "password": "123"
+     }
+   - Respuestas:
+     * 200 OK: {"mensaje": "Autenticacion satisfactoria"}
+     * 401 Unauthorized: {"mensaje": "Error en la autenticacion"}
+     * 400 Bad Request: {"mensaje": "usuario y contraseña, son obligatorios"}

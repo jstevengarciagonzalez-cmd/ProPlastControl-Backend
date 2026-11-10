@@ -1,36 +1,36 @@
-// [SERVER] Express, variables .env y CORS
 const express = require('express');
-const dotenv = require('dotenv');
 const cors = require('cors');
-const path = require('path');
+require('dotenv').config();
 
-dotenv.config();
+// Importar rutas de autenticación
+const authRoutes = require('./routes/auth.routes');
 
-// [BD] Importar y verificar conexión MySQL
-require('./config/db');
-
-// [SERVER] Inicializar Express
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// [MIDDLEWARES] CORS, JSON y carpeta pública para el Frontend
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
-
-// [RUTAS] Importar rutas
+// Importar rutas de tu proyecto ProPlastControl
 const materiaPrimaRoutes = require('./routes/materiaPrimaRoutes');
-const proveedorRoutes = require('./routes/proveedorRoutes');
-const productoRoutes = require('./routes/productoRoutes');
 const ordenProduccionRoutes = require('./routes/ordenProduccionRoutes');
+const productoRoutes = require('./routes/productoRoutes');
+const proveedorRoutes = require('./routes/proveedorRoutes');
 
-// [RUTAS] Vincular los módulos a sus URLs base
+const app = express();
+
+// Middlewares globales
+app.use(express.json());
+app.use(cors());
+
+// Ruta de prueba inicial
+app.get('/', (req, res) => {
+  res.json({ mensaje: 'API ProPlastControl funcionando correctamente' });
+});
+
+// Registrar rutas en la API
+app.use('/api', authRoutes);
 app.use('/api/materia-prima', materiaPrimaRoutes);
-app.use('/api/proveedores', proveedorRoutes);
+app.use('/api/ordenes', ordenProduccionRoutes);
 app.use('/api/productos', productoRoutes);
-app.use('/api/ordenes-produccion', ordenProduccionRoutes);
+app.use('/api/proveedores', proveedorRoutes);
 
-// [SERVER] Levantar puerto
+// Puerto desde variables de entorno
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
 });
