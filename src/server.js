@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 // Importar rutas de autenticación
@@ -17,8 +18,11 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Ruta de prueba inicial
-app.get('/', (req, res) => {
+// Servir archivos estáticos del frontend (carpeta public)
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Ruta de estado de la API
+app.get('/api/status', (req, res) => {
   res.json({ mensaje: 'API ProPlastControl funcionando correctamente' });
 });
 
@@ -26,6 +30,7 @@ app.get('/', (req, res) => {
 app.use('/api', authRoutes);
 app.use('/api/materia-prima', materiaPrimaRoutes);
 app.use('/api/ordenes', ordenProduccionRoutes);
+app.use('/api/ordenes-produccion', ordenProduccionRoutes);
 app.use('/api/productos', productoRoutes);
 app.use('/api/proveedores', proveedorRoutes);
 
