@@ -16,19 +16,76 @@
       align-items: center;
       justify-content: center;
       margin: 0;
+      padding: 1.5rem 0;
     }
+
+    /* --- PANTALLA DE CARGA CON LOGO CENTRAL GRANDE Y FLECHA GIRANDO --- */
+    .loader-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.55s ease, visibility 0.55s ease;
+    }
+    .loader-overlay.oculto {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .orbit-wrapper {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .orbit-ring {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      animation: girarOrbita 1.4s linear infinite;
+    }
+    .center-logo-box {
+      width: 185px;
+      height: 185px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px rgba(56, 189, 248, 0.45);
+      z-index: 2;
+    }
+    .center-logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    @keyframes girarOrbita {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* --- TARJETA DE LOGIN --- */
     .login-card {
       background-color: #ffffff;
       color: #1e293b;
       border-radius: 16px;
-      padding: 2.5rem;
+      padding: 2.25rem;
       width: 100%;
       max-width: 420px;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
     }
     .brand-logo-container {
-      width: 150px;
-      height: 150px;
+      width: 140px;
+      height: 140px;
       background-color: #ffffff;
       border-radius: 16px;
       display: flex;
@@ -63,24 +120,58 @@
       font-weight: 600;
       width: 100%;
       transition: background-color 0.2s;
+      border: none;
     }
     .btn-login:hover {
       background-color: #1e293b;
       color: #ffffff;
     }
+    .nav-pills .nav-link {
+      color: #64748b;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 8px;
+    }
+    .nav-pills .nav-link.active {
+      background-color: #0f172a;
+      color: #ffffff;
+    }
     .demo-box {
       background-color: #eff6ff;
       border-radius: 10px;
-      padding: 1rem;
-      margin-top: 1.5rem;
-      font-size: 0.825rem;
+      padding: 0.9rem 1rem;
+      margin-top: 1.25rem;
+      font-size: 0.8rem;
     }
   </style>
 </head>
 <body>
 
-  <div class="text-center">
-    <!-- Logo Oficial desde la carpeta assets -->
+  <!-- OVERLAY CON LOGO EN EL CENTRO Y FLECHA GIRANDO ALREDEDOR -->
+  <div id="loaderOverlay" class="loader-overlay">
+    <div class="orbit-wrapper">
+      <svg class="orbit-ring" viewBox="0 0 180 180">
+        <defs>
+          <linearGradient id="gradFlecha" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#0284c7" stop-opacity="0.05" />
+            <stop offset="65%" stop-color="#0284c7" stop-opacity="0.85" />
+            <stop offset="100%" stop-color="#38bdf8" stop-opacity="1" />
+          </linearGradient>
+        </defs>
+        <path d="M 90 14 A 76 76 0 1 1 22 124" fill="none" stroke="url(#gradFlecha)" stroke-width="5" stroke-linecap="round" />
+        <polygon points="90,5 104,14 90,23" fill="#38bdf8" />
+      </svg>
+
+      <div class="center-logo-box">
+        <img src="assets/logo.png" alt="ProPlastControl" onerror="this.src='assets/logo.jpg'">
+      </div>
+    </div>
+    <h4 class="fw-bold text-white mt-3 mb-1">ProPlastControl</h4>
+    <small id="loaderTexto" class="text-info">Cargando sistema...</small>
+  </div>
+
+  <!-- CONTENIDO PRINCIPAL DE LOGIN -->
+  <div class="text-center w-100 px-3">
     <div class="brand-logo-container">
       <img src="assets/logo.png" alt="ProPlastControl Logo" onerror="this.src='assets/logo.jpg'">
     </div>
@@ -88,29 +179,174 @@
     <p class="text-secondary small mb-4">Sistema de Control de Producción e Inventarios</p>
 
     <div class="login-card text-start mx-auto">
-      <h4 class="fw-bold mb-1">Iniciar Sesión</h4>
-      <p class="text-muted small mb-4">Ingresa tus credenciales para acceder</p>
+      <ul class="nav nav-pills nav-fill mb-4 bg-light p-1 rounded-3" id="authTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="login-tab" data-bs-toggle="pill" data-bs-target="#login-pane" type="button" role="tab">
+            Iniciar Sesión
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="register-tab" data-bs-toggle="pill" data-bs-target="#register-pane" type="button" role="tab">
+            Crear Cuenta
+          </button>
+        </li>
+      </ul>
 
-      <form onsubmit="event.preventDefault(); window.location.href='dashboard.html';">
-        <div class="mb-3">
-          <label class="form-label small fw-semibold text-secondary">Usuario</label>
-          <input type="text" class="form-control form-control-custom" value="Steven" placeholder="Ingresa tu usuario">
+      <div id="alertaAuth" class="alert d-none py-2 small mb-3" role="alert"></div>
+
+      <div class="tab-content">
+        <!-- Tab 1: Iniciar Sesión -->
+        <div class="tab-pane fade show active" id="login-pane" role="tabpanel">
+          <h4 class="fw-bold mb-1">Iniciar Sesión</h4>
+          <p class="text-muted small mb-3">Ingresa tus credenciales para acceder</p>
+
+          <form id="formLogin">
+            <div class="mb-3">
+              <label for="loginUsuario" class="form-label small fw-semibold text-secondary">Usuario</label>
+              <input type="text" id="loginUsuario" class="form-control form-control-custom" placeholder="Ingresa tu usuario" required>
+            </div>
+            <div class="mb-4">
+              <label for="loginPassword" class="form-label small fw-semibold text-secondary">Contraseña</label>
+              <input type="password" id="loginPassword" class="form-control form-control-custom" placeholder="Ingresa tu contraseña" required>
+            </div>
+            <button type="submit" id="btnLogin" class="btn btn-login">
+              <i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión
+            </button>
+          </form>
         </div>
-        <div class="mb-4">
-          <label class="form-label small fw-semibold text-secondary">Contraseña</label>
-          <input type="password" class="form-control form-control-custom" value="123456789" placeholder="Ingresa tu contraseña">
+
+        <!-- Tab 2: Registro -->
+        <div class="tab-pane fade" id="register-pane" role="tabpanel">
+          <h4 class="fw-bold mb-1">Registrar Usuario</h4>
+          <p class="text-muted small mb-3">Crea una cuenta nueva con rol Operario</p>
+
+          <form id="formRegistro">
+            <div class="mb-3">
+              <label for="regUsuario" class="form-label small fw-semibold text-secondary">Nuevo Usuario</label>
+              <input type="text" id="regUsuario" class="form-control form-control-custom" placeholder="Ej. operario1" required>
+            </div>
+            <div class="mb-4">
+              <label for="regPassword" class="form-label small fw-semibold text-secondary">Contraseña</label>
+              <input type="password" id="regPassword" class="form-control form-control-custom" placeholder="Crea una contraseña" required>
+            </div>
+            <button type="submit" id="btnRegistro" class="btn btn-login">
+              <i class="fas fa-user-plus me-1"></i> Registrar Cuenta
+            </button>
+          </form>
         </div>
-        <button type="submit" class="btn btn-login">Iniciar Sesión</button>
-      </form>
+      </div>
 
       <div class="demo-box text-start">
-        <div class="fw-semibold text-primary mb-2">Credenciales de demostración:</div>
-        <div class="mb-1"><strong>CEO:</strong> <span class="text-muted">Usuario: Steven | Contraseña: 123456789</span></div>
+        <div class="fw-semibold text-primary mb-1">Control de Acceso JWT:</div>
+        <div class="text-muted">Las contraseñas se validan cifradas con <strong>bcrypt</strong> y generan un token de sesión según el rol (<strong>admin</strong> / <strong>operario</strong>).</div>
       </div>
     </div>
 
     <p class="text-secondary small mt-4">© 2026 ProPlastControl S.A. - Todos los derechos reservados</p>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const alerta = document.getElementById('alertaAuth');
+    const loaderOverlay = document.getElementById('loaderOverlay');
+    const loaderTexto = document.getElementById('loaderTexto');
+
+    function mostrarLoader(mensaje) {
+      loaderTexto.textContent = mensaje;
+      loaderOverlay.classList.remove('oculto');
+    }
+
+    function ocultarLoader() {
+      loaderOverlay.classList.add('oculto');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        loaderTexto.textContent = 'Conectado a MySQL 8.4...';
+      }, 650);
+      setTimeout(() => {
+        ocultarLoader();
+      }, 1450);
+    });
+
+    function mostrarAlerta(mensaje, tipo) {
+      alerta.textContent = mensaje;
+      alerta.className = `alert alert-${tipo} py-2 small mb-3`;
+      alerta.classList.remove('d-none');
+    }
+
+    document.getElementById('formLogin').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnLogin');
+      const usuario = document.getElementById('loginUsuario').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          mostrarAlerta(data.mensaje || 'Error en la autenticación', 'danger');
+          btn.disabled = false;
+          return;
+        }
+
+        sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('usuario', JSON.stringify(data.usuario));
+
+        mostrarLoader(`Bienvenido ${data.usuario.usuario} (${data.usuario.rol})...`);
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1250);
+
+      } catch (error) {
+        mostrarAlerta('Error de conexión con el servidor backend', 'danger');
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('formRegistro').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnRegistro');
+      const usuario = document.getElementById('regUsuario').value.trim();
+      const password = document.getElementById('regPassword').value;
+
+      btn.disabled = true;
+      btn.textContent = 'Registrando...';
+
+      try {
+        const res = await fetch('/api/registro', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          mostrarAlerta(data.mensaje || 'Error al registrar usuario', 'danger');
+          return;
+        }
+
+        mostrarAlerta('Cuenta creada con éxito. Ahora inicia sesión.', 'success');
+        document.getElementById('formRegistro').reset();
+        setTimeout(() => {
+          document.getElementById('login-tab').click();
+        }, 1000);
+
+      } catch (error) {
+        mostrarAlerta('Error de conexión con el servidor backend', 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-user-plus me-1"></i> Registrar Cuenta';
+      }
+    });
+  </script>
 
 </body>
 </html>

@@ -7,8 +7,85 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Pantalla de carga con logo central grande y flecha orbitando */
+    .loader-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.55s ease, visibility 0.55s ease;
+    }
+    .loader-overlay.oculto {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .orbit-wrapper {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .orbit-ring {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      animation: girarOrbita 1.4s linear infinite;
+    }
+    .center-logo-box {
+      width: 185px;
+      height: 185px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px rgba(56, 189, 248, 0.45);
+      z-index: 2;
+    }
+    .center-logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    @keyframes girarOrbita {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
+
+  <!-- OVERLAY CON LOGO EN EL CENTRO Y FLECHA GIRANDO ALREDEDOR -->
+  <div id="dashboardLoader" class="loader-overlay">
+    <div class="orbit-wrapper">
+      <svg class="orbit-ring" viewBox="0 0 180 180">
+        <defs>
+          <linearGradient id="gradFlechaDash" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#0284c7" stop-opacity="0.05" />
+            <stop offset="65%" stop-color="#0284c7" stop-opacity="0.85" />
+            <stop offset="100%" stop-color="#38bdf8" stop-opacity="1" />
+          </linearGradient>
+        </defs>
+        <path d="M 90 14 A 76 76 0 1 1 22 124" fill="none" stroke="url(#gradFlechaDash)" stroke-width="5" stroke-linecap="round" />
+        <polygon points="90,5 104,14 90,23" fill="#38bdf8" />
+      </svg>
+      <div class="center-logo-box">
+        <img src="assets/logo.png" alt="ProPlastControl" onerror="this.src='assets/logo.jpg'">
+      </div>
+    </div>
+    <h4 class="fw-bold text-white mt-3 mb-1">ProPlastControl</h4>
+    <small class="text-info">Cargando Panel de Control...</small>
+  </div>
 
   <div class="dashboard-layout">
     <!-- Sidebar estilo Figma con Logo Oficial -->
@@ -37,26 +114,26 @@
         <div class="nav-item-custom" onclick="cambiarPestana('reportes', this)">
           <i class="fa-solid fa-chart-line"></i> Reportes
         </div>
-        <div class="nav-item-custom" onclick="cambiarPestana('configuracion', this)">
+        <div id="nav-configuracion" class="nav-item-custom" onclick="cambiarPestana('configuracion', this)">
           <i class="fa-solid fa-sliders"></i> Configuración
         </div>
       </nav>
 
       <div class="user-profile">
-        <div class="user-avatar">ST</div>
+        <div class="user-avatar" id="perfil-avatar">US</div>
         <div>
-          <h6 class="mb-0 small fw-bold text-white">Steven</h6>
-          <span class="text-secondary" style="font-size: 0.725rem;">CEO</span>
+          <h6 class="mb-0 small fw-bold text-white" id="perfil-nombre">Usuario</h6>
+          <span class="text-secondary text-uppercase" id="perfil-rol" style="font-size: 0.725rem;">Rol</span>
         </div>
-        <a href="index.html" class="text-secondary ms-auto"><i class="fa-solid fa-right-from-bracket"></i></a>
+        <a href="#" onclick="cerrarSesion(event)" title="Cerrar sesión" class="text-secondary ms-auto"><i class="fa-solid fa-right-from-bracket"></i></a>
       </div>
     </aside>
 
     <!-- Área Principal -->
     <div class="main-wrapper">
       <div class="top-bar">
-        <span><i class="fa-regular fa-calendar me-1"></i> Fecha: 12/10/2026</span>
-        <span><i class="fa-regular fa-clock me-1"></i> Turno: Diurno</span>
+        <span><i class="fa-regular fa-calendar me-1"></i> Fecha: 22/11/2026</span>
+        <span><i class="fa-solid fa-shield-halved text-success me-1"></i> Sesión JWT Activa | Turno: Diurno</span>
       </div>
 
       <main class="content-area">
@@ -275,11 +352,35 @@
           </div>
         </section>
 
-        <!-- 6. CONFIGURACIÓN DEL SISTEMA -->
+        <!-- 6. CONFIGURACIÓN DEL SISTEMA (SOLO ADMIN) -->
         <section id="sec-configuracion" class="content-section">
           <div class="mb-4">
             <h3 class="fw-bold mb-1">Configuración del Sistema</h3>
-            <p class="text-secondary small mb-0">Ajustes de la empresa, credenciales e integración</p>
+            <p class="text-secondary small mb-0">Ajustes de la empresa, usuarios y control de acceso (Exclusivo Administrador)</p>
+          </div>
+
+          <!-- Gestión de Usuarios Protegida por JWT -->
+          <div class="card-custom mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fw-bold mb-0"><i class="fa-solid fa-users-gear text-primary me-2"></i>Usuarios Registrados (Endpoint Protegido JWT)</h5>
+              <button class="btn btn-outline-primary btn-sm" onclick="cargarUsuariosAdmin()"><i class="fa-solid fa-rotate me-1"></i> Actualizar</button>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr class="text-secondary small">
+                    <th>ID</th>
+                    <th>USUARIO</th>
+                    <th>ROL ASIGNADO</th>
+                    <th>SEGURIDAD</th>
+                    <th>ACCIÓN</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-usuarios-admin">
+                  <tr><td colspan="5" class="text-muted text-center">Cargando usuarios...</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div class="card-custom">
@@ -300,7 +401,7 @@
                 </div>
                 <div class="col-md-6">
                   <label class="form-label small fw-semibold text-secondary">Servidor de Base de Datos</label>
-                  <input type="text" class="form-control" value="localhost:3306 (MySQL)" readonly>
+                  <input type="text" class="form-control" value="localhost:3306 (MySQL 8.4)" readonly>
                 </div>
               </div>
               <button type="submit" class="btn btn-dark btn-sm mt-3">Guardar Cambios</button>
@@ -380,21 +481,105 @@
     </div>
   </div>
 
-  <!-- Bootstrap JS Bundle para habilitar modales -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    const API_URL = 'http://localhost:3000/api';
+    const API_URL = '/api';
+
+    const token = sessionStorage.getItem('token');
+    const usuarioGuardado = JSON.parse(sessionStorage.getItem('usuario') || 'null');
+
+    if (!token || !usuarioGuardado) {
+      window.location.href = 'index.html';
+    } else {
+      const nombre = usuarioGuardado.usuario || 'Usuario';
+      const rol = usuarioGuardado.rol || 'operario';
+
+      document.getElementById('perfil-nombre').innerText = nombre;
+      document.getElementById('perfil-rol').innerText = rol === 'admin' ? 'Administrador' : 'Operario';
+      document.getElementById('perfil-avatar').innerText = nombre.substring(0, 2).toUpperCase();
+
+      if (rol !== 'admin') {
+        const navConfig = document.getElementById('nav-configuracion');
+        if (navConfig) navConfig.style.display = 'none';
+      }
+    }
+
+    function cerrarSesion(e) {
+      e.preventDefault();
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('usuario');
+      window.location.href = 'index.html';
+    }
 
     function cambiarPestana(seccionId, elemento) {
+      if (seccionId === 'configuracion' && usuarioGuardado?.rol !== 'admin') {
+        alert('Acceso denegado: solo el rol Administrador puede ingresar a Configuración.');
+        return;
+      }
+
       document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
       document.querySelectorAll('.nav-item-custom').forEach(item => item.classList.remove('active'));
       
       document.getElementById(`sec-${seccionId}`).classList.add('active');
       elemento.classList.add('active');
+
+      if (seccionId === 'configuracion' && usuarioGuardado?.rol === 'admin') {
+        cargarUsuariosAdmin();
+      }
     }
 
-    // 1. Cargar Materias Primas
+    async function cargarUsuariosAdmin() {
+      const tbody = document.getElementById('tabla-usuarios-admin');
+      try {
+        const res = await fetch(`${API_URL}/usuarios`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const datos = await res.json();
+
+        if (!res.ok) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-danger text-center">${datos.mensaje || 'Sin permisos'}</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = datos.map(u => `
+          <tr>
+            <td class="fw-bold">${u.id_usuario}</td>
+            <td>${u.usuario}</td>
+            <td><span class="badge ${u.rol === 'admin' ? 'bg-primary' : 'bg-secondary'}">${u.rol}</span></td>
+            <td class="text-success small"><i class="fa-solid fa-lock me-1"></i>Hash bcrypt</td>
+            <td>
+              ${u.usuario !== usuarioGuardado.usuario
+                ? `<button class="btn btn-outline-danger btn-sm" onclick="eliminarUsuarioAdmin(${u.id_usuario}, '${u.usuario}')"><i class="fa-solid fa-trash"></i></button>`
+                : `<span class="text-muted small">Sesión actual</span>`}
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-danger text-center">Error al consultar usuarios</td></tr>`;
+      }
+    }
+
+    async function eliminarUsuarioAdmin(id, nombreUsuario) {
+      if (!confirm(`¿Seguro que deseas eliminar al usuario "${nombreUsuario}"?`)) return;
+
+      try {
+        const res = await fetch(`${API_URL}/usuarios/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          cargarUsuariosAdmin();
+        } else {
+          alert(data.mensaje || 'No se pudo eliminar el usuario');
+        }
+      } catch (err) {
+        alert('Error de conexión al intentar eliminar el usuario');
+      }
+    }
+
     async function cargarMateriasPrimas() {
       try {
         const res = await fetch(`${API_URL}/materia-prima`);
@@ -422,7 +607,6 @@
       }
     }
 
-    // 2. Cargar Productos Terminados
     async function cargarProductos() {
       try {
         const res = await fetch(`${API_URL}/productos`);
@@ -450,7 +634,6 @@
       }
     }
 
-    // 3. Cargar Órdenes de Producción
     async function cargarOrdenesProduccion() {
       try {
         const res = await fetch(`${API_URL}/ordenes-produccion`);
@@ -470,7 +653,7 @@
             <td>Producto #${item.id_producto}</td>
             <td><strong>${(typeof item.cantidad === 'number' ? item.cantidad : 500)} u</strong></td>
             <td><span class="badge bg-primary-subtle text-primary">${item.estado || 'En proceso'}</span></td>
-            <td class="text-secondary">${item.fecha_inicio ? new Date(item.fecha_inicio).toLocaleDateString() : '12/10/2026'}</td>
+            <td class="text-secondary">${item.fecha_inicio ? new Date(item.fecha_inicio).toLocaleDateString() : '22/11/2026'}</td>
           </tr>
         `).join('');
       } catch (err) {
@@ -479,7 +662,6 @@
       }
     }
 
-    // MANEJADOR: GUARDAR MATERIA PRIMA (POST)
     document.getElementById('formMateriaPrima').addEventListener('submit', async (e) => {
       e.preventDefault();
       const payload = {
@@ -511,7 +693,6 @@
       }
     });
 
-    // MANEJADOR: GUARDAR PRODUCTO TERMINADO (POST)
     document.getElementById('formProducto').addEventListener('submit', async (e) => {
       e.preventDefault();
       const payload = {
@@ -543,10 +724,16 @@
       }
     });
 
-    function cargarTodoElSistema() {
-      cargarMateriasPrimas();
-      cargarProductos();
-      cargarOrdenesProduccion();
+    async function cargarTodoElSistema() {
+      await Promise.all([
+        cargarMateriasPrimas(),
+        cargarProductos(),
+        cargarOrdenesProduccion()
+      ]);
+      setTimeout(() => {
+        const dashLoader = document.getElementById('dashboardLoader');
+        if (dashLoader) dashLoader.classList.add('oculto');
+      }, 650);
     }
 
     cargarTodoElSistema();
